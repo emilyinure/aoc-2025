@@ -34,8 +34,9 @@ fn part2(batteries: &[u8]) -> Option<u64> {
     let mut left_bound = 0usize;
     Some(
         (0..12)
+            .rev()
             .map(|item_count| {
-                let right_bound = batteries.len() - (11 - item_count);
+                let right_bound = batteries.len() - item_count;
 
                 let window_slice = &batteries[left_bound..right_bound];
 
@@ -46,7 +47,7 @@ fn part2(batteries: &[u8]) -> Option<u64> {
 
                 let mut best = *best as u64;
 
-                best *= 10u64.pow((11 - item_count) as u32);
+                best *= 10u64.pow(item_count as u32);
 
                 Some(best)
             })
