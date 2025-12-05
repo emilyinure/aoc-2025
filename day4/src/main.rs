@@ -55,37 +55,40 @@ fn part2(rolls: &[U256], line_len: usize) -> u64 {
             let mut remove = U256::from(0);
             for i in 0..line_len {
                 let item_check = U256::from(1) << i;
-                let is_roll = *value & item_check;
-                if is_roll != U256::from(0) {
-                    let mut grid_check = item_check;
-                    if i > 0 {
-                        grid_check |= U256::from(1) << (i - 1);
-                    }
-                    if i < line_len - 1 {
-                        grid_check |= U256::from(1) << (i + 1);
-                    }
+                let status = *value & item_check;
 
-                    let mut occupied = 0;
-                    for &limb in (*value & grid_check).as_ref() {
+                if status == U256::from(0) {
+                    continue;
+                }
+
+                let mut grid_check = item_check;
+                if i > 0 {
+                    grid_check |= U256::from(1) << (i - 1);
+                }
+                if i < line_len - 1 {
+                    grid_check |= U256::from(1) << (i + 1);
+                }
+
+                let mut occupied = 0;
+                for &limb in (*value & grid_check).as_ref() {
+                    occupied += limb.count_ones();
+                }
+
+                if index > 0 {
+                    for &limb in (rolls[index - 1] & grid_check).as_ref() {
                         occupied += limb.count_ones();
                     }
+                }
 
-                    if index > 0 {
-                        for &limb in (rolls[index - 1] & grid_check).as_ref() {
-                            occupied += limb.count_ones();
-                        }
+                if index < rolls.len() - 1 {
+                    for &limb in (rolls[index + 1] & grid_check).as_ref() {
+                        occupied += limb.count_ones();
                     }
+                }
 
-                    if index < rolls.len() - 1 {
-                        for &limb in (rolls[index + 1] & grid_check).as_ref() {
-                            occupied += limb.count_ones();
-                        }
-                    }
-
-                    if occupied < 5 {
-                        count += 1;
-                        remove |= item_check;
-                    }
+                if occupied < 5 {
+                    count += 1;
+                    remove |= item_check;
                 }
             }
 
@@ -94,13 +97,13 @@ fn part2(rolls: &[U256], line_len: usize) -> u64 {
             acc + count
         });
 
-        total += rolls_removed;
-
-        rolls = new_rolls;
-
         if rolls_removed == 0 {
             break;
         }
+
+        total += rolls_removed;
+
+        rolls = new_rolls;
     }
     total
 }
